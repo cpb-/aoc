@@ -1,0 +1,15 @@
+
+
+$ wc example 
+ 5  5 55 example
+
+nb_cols = $(( 55 / 5 - 1)) = 10
+nb_rows = 5
+
+
+$ wc input 
+  100   100 10100 input
+
+nb_cols = $(( 10100 / 100 - 1)) = 100
+nb_rows = 100
+
