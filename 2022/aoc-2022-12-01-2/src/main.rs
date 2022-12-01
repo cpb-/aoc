@@ -8,16 +8,15 @@ fn main() -> io::Result<()> {
 
 	let mut reader = BufReader::new(io::stdin());
 	let mut value: u32;
-	let mut sum: u32;
+	let mut sum: u32 = 0;
 	let mut max: [u32; 3] = [0;3];
 
-	sum = 0;
 	loop {
 
 		let mut line = String::new();
-		let nb_bytes = reader.read_line(& mut line).expect("Error");
+		let nb_bytes = reader.read_line(& mut line).expect("Data should be provided on standard input");
 
-		if line.trim().is_empty() || (nb_bytes == 0) {
+		if line.trim().is_empty() {
 			if max[0] < sum {
 				max[2] = max[1];
 				max[1] = max[0];
@@ -30,7 +29,7 @@ fn main() -> io::Result<()> {
 			}
 			sum = 0;
 		} else {
-			value = line.trim().parse::<u32>().expect("Unparsable");
+			value = line.trim().parse::<u32>().expect("Lines should contains a u32");
 			sum += value;
 		}
 		if nb_bytes == 0 {
@@ -38,7 +37,7 @@ fn main() -> io::Result<()> {
 		}
 	}
 
-	println!("Max 3 = {}", max[0] + max[1] + max[2]);
+	println!("Maximum calories for three Elves = {}", max[0] + max[1] + max[2]);
 
 	Ok(())
 }
