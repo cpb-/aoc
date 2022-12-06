@@ -13,19 +13,24 @@ fn main() -> io::Result<()> {
 	reader.read_line(& mut strline).expect("Data should be provided on standard input");
 
 	let mut nb_chars: usize = 0;
-	let mut i: usize;	
 	let mut cs: [char; NB] = [' '; NB];
+
 	for c in strline.trim().chars() {
+
 		nb_chars += 1;
-		i = 0;
+
+		// insert c in cs array.
+		let mut i: usize = 0;
 		while i < (NB - 1) {
 			cs[i] = cs [i+1];
 			i += 1;
 		}
 		cs[NB - 1] = c;
+
 		if nb_chars < NB {
 			continue;
 		}
+
 		let mut found: bool = false;
 		i = 0;
 		while i < (NB - 1) {
@@ -48,9 +53,5 @@ fn main() -> io::Result<()> {
 		println!("{}", nb_chars);
 		break;
 	}
-
-
 	Ok(())
 }
-
-
