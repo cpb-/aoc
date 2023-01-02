@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only
 
 use std::io;
 use std::io::prelude::*;
@@ -12,14 +13,9 @@ fn main() -> io::Result<()> {
 
 	for line in reader.lines() {
 
-		let content = line.unwrap();
-		let mut chars = content.chars();
+		let content: Vec<char> = line.unwrap().chars().collect();
 
-		let him = chars.next().unwrap();
-		chars.next();
-		let me = chars.next().unwrap();
-
-		sum += compute_round(him, me);
+		sum += compute_round(content[0], content[2]);
 	}
 
 	println!("My score = {}", sum);
