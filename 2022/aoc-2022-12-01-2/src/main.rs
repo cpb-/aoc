@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only
 
 use std::io;
 use std::io::prelude::*;
@@ -12,7 +13,6 @@ fn main() -> io::Result<()> {
 	let mut max: [u32; 3] = [0;3];
 
 	loop {
-
 		let mut line = String::new();
 		let nb_bytes = reader.read_line(& mut line).expect("Data should be provided on standard input");
 
