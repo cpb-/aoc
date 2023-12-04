@@ -4,6 +4,43 @@
 #include <string.h>
 #include <unistd.h>
 
+char **array = NULL;
+int width = 0;
+int height = 0;
+
+
+
+int load_array(void)
+{
+	char line[1024];
+
+	while (fgets(line, 1024, stdin) != NULL) {
+
+		line[strlen(line) - 1] = '\0';
+		if (line[0] == '\0')
+			break;
+		if (width == 0) {
+			width = strlen(line);
+		}
+		array = realloc(array, (height + 1) * sizeof(char *));
+		if (array == NULL) {
+			perror("realloc");
+			exit(EXIT_FAILURE);
+		}
+
+		height ++;
+
+		array[height - 1] = malloc(width + 1);
+		if (array[height - 1] == NULL) {
+			perror("malloc");
+			exit(EXIT_FAILURE);
+		}
+		strncpy(array[height - 1], line, width + 1);
+	}
+	return 0;
+}
+
+
 
 void part_1(void)
 {
