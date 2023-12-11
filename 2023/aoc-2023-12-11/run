@@ -1,0 +1,24 @@
+#! /bin/sh
+
+make || exit 1
+
+echo "============ PART 1 ==============="
+
+echo "EXAMPLE (x 2)"
+./aoc 2  < example
+
+echo "INPUT"
+./aoc 2 < input
+
+echo "============ PART 2 ==============="
+
+echo "EXAMPLE (x 10)"
+./aoc 10  < example
+
+echo "EXAMPLE (x 100)"
+./aoc 100  < example
+
+echo "INPUT"
+./aoc 1000000 < input
+
+
