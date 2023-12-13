@@ -1,26 +1,21 @@
 #! /bin/sh
 
-make
-
+make || exit 1
 
 echo "============ PART 1 ==============="
-echo "EXAMPLE"
 
+echo "EXAMPLE 1"
 ./aoc 1  < example-1
 
-
 echo "INPUT"
-
 ./aoc 1 < input
 
 echo "============ PART 2 ==============="
 
 echo "EXAMPLE"
-
 ./aoc 2  < example-2
 
 echo "INPUT"
-
 ./aoc 2 < input
 
 
