@@ -42,6 +42,42 @@ int load_array(void)
 
 
 
+void display_array(void)
+{
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++)
+			fprintf(stderr, "%c", array[i][j]);
+		fprintf(stderr, "\n");
+	}
+	fprintf(stderr, "\n");
+}
+
+
+
+char **array_backup = NULL;
+
+
+void backup_array(void)
+{
+	array_backup = malloc(height * sizeof(char *));
+	for (int i = 0; i < height; i++) {
+		array_backup[i] = malloc(width + 1);
+		strcpy(array_backup[i], array[i]);
+	}
+}
+
+
+
+int array_equals_to_backup(void)
+{
+	for (int i = 0; i < height; i++)
+		if (strcmp(array_backup[i], array[i]) != 0)
+			return 0;
+	return 1;
+}
+
+
+
 void part_1(void)
 {
 }
