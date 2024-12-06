@@ -5,8 +5,8 @@
 #include <unistd.h>
 
 char **array = NULL;
-int width = 0;
-int height = 0;
+size_t width = 0;
+size_t height = 0;
 
 
 
@@ -44,8 +44,8 @@ int load_array(void)
 
 void display_array(void)
 {
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++)
+	for (size_t i = 0; i < height; i++) {
+		for (size_t j = 0; j < width; j++)
 			fprintf(stderr, "%c", array[i][j]);
 		fprintf(stderr, "\n");
 	}
@@ -60,17 +60,44 @@ char **array_backup = NULL;
 void backup_array(void)
 {
 	array_backup = malloc(height * sizeof(char *));
-	for (int i = 0; i < height; i++) {
+	if (array_backup == NULL) {
+		perror("malloc 1");
+		exit(EXIT_FAILURE);
+	}
+	for (size_t i = 0; i < height; i++) {
 		array_backup[i] = malloc(width + 1);
+		if (array_backup[i] == NULL) {
+			perror("malloc 2");
+			exit(EXIT_FAILURE);
+		}
 		strcpy(array_backup[i], array[i]);
 	}
+}
+
+
+void clear_backup_array(void)
+{
+	for (size_t i = 0; i < height; i++)
+		memset(array_backup[i], 0, width + 1);
+}
+
+
+
+void restore_backup(void)
+{
+	for (size_t i = 0; i < height; i++) {
+		strcpy(array[i], array_backup[i]);
+		free(array_backup[i]);
+	}
+	free(array_backup);
+	array_backup = NULL;
 }
 
 
 
 int array_equals_to_backup(void)
 {
-	for (int i = 0; i < height; i++)
+	for (size_t i = 0; i < height; i++)
 		if (strcmp(array_backup[i], array[i]) != 0)
 			return 0;
 	return 1;
