@@ -20,7 +20,6 @@ void load_registers_and_prog(void)
 	if ((fgets(line, 64, stdin) == NULL) || (sscanf(line, "Register C: %lld", &C) != 1))
 		exit(1);
 	I = 0;
-	//printf("A=%d, B=%d, C=%d\n", A, B, C);
 
 	if (fgets(line, 64, stdin) == NULL)
 		exit(1);
@@ -64,7 +63,6 @@ void run(int verbose)
 	nb_out = 0;
 
 	while (I < nb_instr) {
-		// fprintf(stderr, "  %d: %d %d (%d, %d, %d)\n", I, prog[I], prog[I+1], A, B, C);
 		int denom;
 		switch(prog[I++]) {
 			case 0: // ADV
@@ -120,6 +118,33 @@ void part_1(void)
 }
 
 
+int search_digit(int d, long long int a)
+{
+	if (d > 16) {
+		printf("a = %lld  out = ", a);
+		A = a;
+		B = C = I = 0;
+		run(1);
+		return 1;
+	}
+	for (int i = 0; i < 8; i++) {
+		A = a << 3 | i;
+		B = C = I = 0;
+		run(0);
+		int j;
+		for (j = 0; j < d; j ++) {
+			if (out[nb_out - 1 - j] != prog[15 - j])
+				break;
+		}
+		if (j == d) {
+			if (search_digit(d + 1, a << 3 | i))
+				return 1;
+		}
+	}
+	return 0;
+}
+
+
 void part_2(void)
 {
 	int program[16] = { 2, 4, 1, 7, 7, 5, 4, 1, 1, 4, 5, 5, 0, 3, 3, 0 };
@@ -127,23 +152,7 @@ void part_2(void)
 	memcpy(prog, program, 16 * sizeof(int));
 	nb_instr = 16;
 
-	for (int i = 0; i < 8; i++){
-		A = 3;
-		A = A << 3 | 0 ; // 3
-		A = A << 3 | 7 ; // 3
-		A = A << 3 | 2 ; // 0
-		A = A << 3 | 2 ; // 5
-		A = A << 3 | 3 ;
-//		A = A << 3 | 2 ;
-		A = A | i;
-		B = 0;
-		C = 0;
-		I = 0;
-		printf("A=%lld, %d: ", A, i);
-		run(1);
-	}
-
-
+	search_digit(0, 0);
 }
 
 
