@@ -1,0 +1,22 @@
+#! /bin/sh
+
+make || exit 1
+
+echo "============ PART 1 ==============="
+
+if [ -s "example-1" ]
+then
+	echo "EXAMPLE 1"
+	./aoc 1  < example-1
+fi
+
+if [ -s "input" ]
+then
+	echo "INPUT"
+	./aoc 1 < input
+fi
+
+echo "============ PART 2 ==============="
+
+grep Inverted part-2-wires
+
