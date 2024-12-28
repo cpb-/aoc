@@ -6,35 +6,32 @@
 #include <unistd.h>
 
 
-#define WIDTH 16
-#define HEIGHT 16
-
-char doorpad[WIDTH][HEIGHT]  = { { '#', '#', '#', '#', '#' } , { '#', '7', '8', '9' , '#' }, { '#', '4', '5', '6', '#' }, { '#', '1', '2', '3', '#' }, { '#', '#', '0', 'A', '#' }, { '#', '#', '#', '#', '#' } };
-char robotpad[WIDTH][HEIGHT] = { { '#', '#', '#', '#', '#' } , { '#', '#', '^', 'A' , '#' }, { '#', '<', 'v', '>', '#' }, { '#', '#', '#', '#', '#' } };
-
 char *doorpadmove[11][11] = {
 /*              To:    0        1       2        3        4       5       6         7        8        9        A    */
 /* From 0 */	{     "A",   "^<A",   "^A",   "^>A",  "^^<A",  "^^A", "^^>A",  "^^^<A",  "^^^A", "^^^>A",     ">A"  },
 /* From 1 */	{   ">vA",     "A",   ">A",   ">>A",    "^A",  "^>A", "^>>A",    "^^A",  "^^>A", "^^>>A",   ">>vA"  },
-/* From 2 */	{    "vA",    "<A",    "A",    ">A",   "^<A",   "^A",  "^>A",   "^^<A",   "^^A",  ">^^A",    ">vA"  },
-/* From 3 */	{   "v<A",   "<<A",   "<A",     "A",  "^<<A",  "^<A",   "^A",  "^^<<A",  "^^<A",   "^^A",     "vA"  },
-/* From 4 */	{  ">vvA",    "vA",  ">vA",  ">>vA",     "A",   ">A",  ">>A",     "^A",   "^>A",  "^>>A",  ">>vvA"  },
-/* From 5 */	{   "vvA",   "<vA",   "vA",   ">vA",    "<A",    "A",   ">A",    "^<A",    "^A",   "^>A",   ">vvA"  },
-/* From 6 */	{  "<vvA",  "<<vA",  "<vA",    "vA",   "<<A" ,  "<A",    "A",   "^<<A",   "^<A",    "^A",    "vvA"  },
-/* From 7 */	{ ">vvvA",   "vvA", ">vvA", ">>vvA",    "vA",  ">vA", ">>vA",      "A",    ">A",   ">>A", ">>vvvA"  },
-/* From 8 */	{  "vvvA",  "<vvA",  "vvA",  ">vvA",   "<vA",   "vA",  ">vA",     "<A",     "A",    ">A",  ">vvvA"  },
+/* From 2 */	{    "vA",    "<A",    "A",    ">A",   "<^A",   "^A",  "^>A",   "<^^A",   "^^A",  "^^>A",    "v>A"  },
+/* From 3 */	{   "<vA",   "<<A",   "<A",     "A",  "<<^A",  "<^A",   "^A",  "<<^^A",  "<^^A",   "^^A",     "vA"  },
+/* From 4 */	{  ">vvA",    "vA",  "v>A",  "v>>A",     "A",   ">A",  ">>A",     "^A",   "^>A",  "^>>A",  ">>vvA"  },
+/* From 5 */	{   "vvA",   "<vA",   "vA",   "v>A",    "<A",    "A",   ">A",    "<^A",    "^A",   "^>A",   "vv>A"  },
+/* From 6 */	{  "<vvA",  "<<vA",  "<vA",    "vA",   "<<A" ,  "<A",    "A",   "<<^A",   "<^A",    "^A",    "vvA"  },
+/* From 7 */	{ ">vvvA",   "vvA", "vv>A", "vv>>A",    "vA",  "v>A", "v>>A",      "A",    ">A",   ">>A", ">>vvvA"  },
+/* From 8 */	{  "vvvA",  "<vvA",  "vvA",  "vv>A",   "<vA",   "vA",  "v>A",     "<A",     "A",    ">A",  "vvv>A"  },
 /* From 9 */	{ "<vvvA", "<<vvA", "<vvA",   "vvA",  "<<vA",  "<vA",   "vA",    "<<A",    "<A",     "A",   "vvvA"  },
-/* From A */	{    "<A",  "^<<A",  "^<A",    "^A", "^^<<A", "^^<A",  "^^A", "^^^<<A", "^^^<A",  "^^^A",      "A"  }
+/* From A */	{    "<A",  "^<<A",  "<^A",    "^A", "^^<<A", "<^^A",  "^^A", "^^^<<A", "<^^^A",  "^^^A",      "A"  }
 };
+
 
 char *arrowpadmove[5][5] = {
 /*              To:    <        v       >       ^       A    */
 /* From <*/     {     "A",    ">A",  ">>A",  ">^A", ">>^A"   },
-/* From v*/     {    "<A",     "A",   ">A",   "^A",  ">^A"   },
+/* From v*/     {    "<A",     "A",   ">A",   "^A",  "^>A"   },
 /* From >*/     {   "<<A",    "<A",    "A",  "<^A",   "^A"   },
 /* From ^*/     {   "v<A",    "vA",  "v>A",    "A",   ">A"   },
 /* From A*/     {  "v<<A",   "<vA",   "vA",   "<A",    "A"   }
 };
+
+
 
 int door_index(char c)
 {
@@ -42,6 +39,7 @@ int door_index(char c)
 		return 10;
 	return c - '0';
 }
+
 
 
 int arrow_index(char c)
@@ -56,80 +54,90 @@ int arrow_index(char c)
 }
 
 
-long long int complexity_of_code(const char *code)
-{
-	char doormove[1024];
-	doormove[0] = '\0';
 
+#define LG_MAX (1024*1024)
+char *moves[2];
+
+
+
+long long int complexity_of_code(const char *code, int nb_robots)
+{
+
+	moves[1][0] = '\0';
 	char prev = 'A';
 	for (int n = 0; code[n] != '\0'; n++) {
-		strcat(doormove, doorpadmove[door_index(prev)][door_index(code[n])]);
+		strcat(moves[1], doorpadmove[door_index(prev)][door_index(code[n])]);
 		prev = code[n];
 	}
-	printf("Door: %s (%ld)\n", doormove, strlen(doormove));
 
+	memmove(moves[0], moves[1], LG_MAX-1);
 
-
-	char arrowmove1[1024];
-	arrowmove1[0] = '\0';
-
-	prev = 'A';
-	for (int n = 0; doormove[n] != '\0'; n++) {
-		int from = arrow_index(prev);
-		int to = arrow_index(doormove[n]);
-		strcat(arrowmove1, arrowpadmove[from][to]);
-		prev = doormove[n];
+	for (int r = 0; r < nb_robots; r++) {
+		moves[1][0] = '\0';
+		prev = 'A';
+		int pos = 0;
+		for (int n = 0; moves[0][n] != '\0'; n++) {
+			int from = arrow_index(prev);
+			int to = arrow_index(moves[0][n]);
+			strcpy(&(moves[1][pos]), arrowpadmove[from][to]);
+			pos += strlen(&(moves[1][pos]));
+			prev = moves[0][n];
+		}
+		memmove(moves[0], moves[1], LG_MAX-1);
 	}
-	printf("Arrow 1: %s (%ld)\n", arrowmove1, strlen(arrowmove1));
 
 
+	long long int val;
+	long long int l = strlen(moves[0]);
 
-	char arrowmove2[1024];
-	arrowmove2[0] = '\0';
+	sscanf(code, "%lld", &val);
 
-	prev = 'A';
-	for (int n = 0; arrowmove1[n] != '\0'; n++) {
-		int from = arrow_index(prev);
-		int to = arrow_index(arrowmove1[n]);
-		strcat(arrowmove2, arrowpadmove[from][to]);
-		prev = arrowmove1[n];
-	}
-	printf("Arrow 2: %s (%ld)\n", arrowmove2, strlen(arrowmove2));
-
-	int val;
-	long int l = strlen(arrowmove2);
-
-	sscanf(code, "%d", &val);
-	fprintf(stderr, "ret = %ld x %d = %ld\n", l, val, l*val);
+	//fprintf(stderr, "%s: %lld x %lld = %lld\n", code, l, val, l*val);
 	return l * val;
-
-
-	return 0;
-
 }
+
+
+
+void sum_of_complexities(int nb_robots)
+{
+	long long int sum;
+
+	moves[0] = malloc(LG_MAX);
+	if (moves[0] == NULL) {
+		perror("moves 0");
+		exit(1);
+	}
+	moves[1] = malloc(LG_MAX);
+	if (moves[1] == NULL) {
+		perror("moves ");
+		exit(1);
+	}
+
+	sum = 0;
+	sum += complexity_of_code("029A", nb_robots);
+	sum += complexity_of_code("980A", nb_robots);
+	sum += complexity_of_code("179A", nb_robots);
+	sum += complexity_of_code("456A", nb_robots);
+	sum += complexity_of_code("379A", nb_robots);
+	printf("Example Sum = %lld\n\n", sum);
+
+	sum = 0;
+	sum += complexity_of_code("789A", nb_robots);
+	sum += complexity_of_code("968A", nb_robots);
+	sum += complexity_of_code("286A", nb_robots);
+	sum += complexity_of_code("349A", nb_robots);
+	sum += complexity_of_code("170A", nb_robots);
+	printf("Input data sum = %lld\n\n", sum);
+
+	free(moves[1]);
+	free(moves[0]);
+}
+
 
 
 void part_1(void)
 {
-	long long int sum;
-
-	printf("Example 1:\n\n");
-	sum = 0;
-	sum += complexity_of_code("029A");
-	sum += complexity_of_code("980A");
-	sum += complexity_of_code("179A");
-	sum += complexity_of_code("456A");
-	sum += complexity_of_code("379A");
-	printf("Sum = %lld\n\n", sum);
-
-	printf("Input:\n\n");
-	sum = 0;
-	sum += complexity_of_code("789A");
-	sum += complexity_of_code("968A");
-	sum += complexity_of_code("286A");
-	sum += complexity_of_code("349A");
-	sum += complexity_of_code("170A");
-	printf("Sum = %lld\n\n", sum);
+	sum_of_complexities(2);
 }
 
 
@@ -158,3 +166,5 @@ int main(int argc, char *argv[])
 	}
 	return EXIT_SUCCESS;
 }
+
+
