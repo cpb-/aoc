@@ -32,14 +32,12 @@ char *arrowpadmove[5][5] = {
 };
 
 
-
 int door_index(char c)
 {
 	if (c == 'A')
 		return 10;
 	return c - '0';
 }
-
 
 
 int arrow_index(char c)
@@ -55,45 +53,81 @@ int arrow_index(char c)
 
 
 
-#define LG_MAX (1024*1024)
-char *moves[2];
+typedef struct {
+	char   prev;
+	char   next;
+	int    robot;
+	long long int length;
+} memo;
+
+memo *Memo = NULL;
+int Nb_memo = 0;
+
+long long int check_memoization(char prev, char next, int robot)
+{
+	for (int n = 0; n < Nb_memo; n++)
+		if ((prev == Memo[n].prev) && (next == Memo[n].next) && (robot == Memo[n].robot))
+			return Memo[n].length;
+	return -1;
+}
+
+void memoize(char prev, char next, int robot, long long int length)
+{
+	memo *m;
+	m = realloc(Memo, (Nb_memo + 1) * sizeof(memo));
+	if (m == NULL)
+		return;
+	Memo = m;
+	Memo[Nb_memo].prev = prev;
+	Memo[Nb_memo].next = next;
+	Memo[Nb_memo].robot = robot;
+	Memo[Nb_memo].length = length;
+	Nb_memo ++;
+}
+
+
+
+
+long long int length_of_code(char prev, char next, int robot)
+{
+	long long int ret = check_memoization(prev, next, robot);
+	if (ret >= 0)
+		return ret;
+	ret = 0;
+
+	char *move = arrowpadmove[arrow_index(prev)][arrow_index(next)];
+
+	if (robot == 1) {
+		ret = strlen(move);
+	} else {
+		ret += length_of_code('A', move[0], robot - 1);
+		for (int i = 1; move[i] != '\0'; i++)
+			ret += length_of_code(move[i-1], move[i], robot - 1);
+	}
+	memoize(prev, next, robot, ret);
+	return ret;
+}
 
 
 
 long long int complexity_of_code(const char *code, int nb_robots)
 {
+	long long int length = 0;
+	char prev;
 
-	moves[1][0] = '\0';
-	char prev = 'A';
+	prev = 'A';
 	for (int n = 0; code[n] != '\0'; n++) {
-		strcat(moves[1], doorpadmove[door_index(prev)][door_index(code[n])]);
+		char *move = doorpadmove[door_index(prev)][door_index(code[n])];
+		length += length_of_code('A', move[0], nb_robots);
+		for (int m = 1; move[m] != '\0'; m++)
+			length += length_of_code(move[m-1], move[m], nb_robots);
 		prev = code[n];
 	}
 
-	memmove(moves[0], moves[1], LG_MAX-1);
-
-	for (int r = 0; r < nb_robots; r++) {
-		moves[1][0] = '\0';
-		prev = 'A';
-		int pos = 0;
-		for (int n = 0; moves[0][n] != '\0'; n++) {
-			int from = arrow_index(prev);
-			int to = arrow_index(moves[0][n]);
-			strcpy(&(moves[1][pos]), arrowpadmove[from][to]);
-			pos += strlen(&(moves[1][pos]));
-			prev = moves[0][n];
-		}
-		memmove(moves[0], moves[1], LG_MAX-1);
-	}
-
-
 	long long int val;
-	long long int l = strlen(moves[0]);
-
 	sscanf(code, "%lld", &val);
 
-	//fprintf(stderr, "%s: %lld x %lld = %lld\n", code, l, val, l*val);
-	return l * val;
+	return length * val;
 }
 
 
@@ -101,17 +135,6 @@ long long int complexity_of_code(const char *code, int nb_robots)
 void sum_of_complexities(int nb_robots)
 {
 	long long int sum;
-
-	moves[0] = malloc(LG_MAX);
-	if (moves[0] == NULL) {
-		perror("moves 0");
-		exit(1);
-	}
-	moves[1] = malloc(LG_MAX);
-	if (moves[1] == NULL) {
-		perror("moves ");
-		exit(1);
-	}
 
 	sum = 0;
 	sum += complexity_of_code("029A", nb_robots);
@@ -128,9 +151,6 @@ void sum_of_complexities(int nb_robots)
 	sum += complexity_of_code("349A", nb_robots);
 	sum += complexity_of_code("170A", nb_robots);
 	printf("Input data sum = %lld\n\n", sum);
-
-	free(moves[1]);
-	free(moves[0]);
 }
 
 
@@ -143,6 +163,7 @@ void part_1(void)
 
 void part_2(void)
 {
+	sum_of_complexities(25);
 }
 
 
